@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
+<title>Mi Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --bg2: #111113;
+    --bg3: #1a1a1e;
+    --bg4: #222228;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f0;
+    --text2: #888;
+    --text3: #555;
+    --green: #4ade80;
+    --green2: #166534;
+    --green3: rgba(74,222,128,0.1);
+    --blue: #60a5fa;
+    --blue2: #1e3a5f;
+    --blue3: rgba(96,165,250,0.1);
+    --amber: #fbbf24;
+    --amber2: #78350f;
+    --amber3: rgba(251,191,36,0.1);
+    --red: #f87171;
+    --red3: rgba(248,113,113,0.1);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --font: 'Syne', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,11,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 12px;
+    height: 52px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .nav-btn:hover { color: var(--text); background: var(--bg3); }
+  .nav-btn.active { color: var(--text); background: var(--bg3); }
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text3);
+    flex-shrink: 0;
+  }
+  .nav-btn.active .nav-dot { background: var(--green); }
+  .nav-btn[data-section="agua"].active .nav-dot { background: var(--blue); }
+  .nav-btn[data-section="gym"].active .nav-dot { background: var(--amber); }
+  .nav-btn[data-section="sueno"].active .nav-dot { background: var(--blue); }
+  .nav-btn[data-section="calendario"].active .nav-dot { background: var(--green); }
+
+  /* PAGES */
+  .page { display: none; padding: 20px 16px 80px; max-width: 720px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 14px;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .hero-ring {
+    position: relative;
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+  }
+  .hero-ring svg { transform: rotate(-90deg); }
+  .hero-ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-pct {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+  }
+  .hero-time-label {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+  .hero-info { flex: 1; }
+  .hero-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .hero-sub {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 10px;
+    font-family: var(--mono);
+  }
+  .hero-date {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  /* STREAK */
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--amber3);
+    border: 1px solid var(--amber2);
+    color: var(--amber);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+  }
+
+  /* TASKS */
+  .task-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .task-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    outline: none;
+  }
+  .task-input:focus { border-color: var(--green); }
+  .task-date-input {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 10px 10px;
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 12px;
+    outline: none;
+    width: 130px;
+    cursor: pointer;
+  }
+  .task-date-input:focus { border-color: var(--green); }
+  .btn-add {
+    background: var(--green);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #000;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s;
+  }
+  .btn-add:hover { opacity: 0.85; }
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    margin-bottom: 7px;
+    transition: opacity 0.2s;
+  }
+  .task-item.done { opacity: 0.4; }
+  .task-check {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    background: transparent;
+  }
+  .task-check.done { background: var(--green); border-color: var(--green); }
+  .task-check.done::after { content: '✓'; color: #000; font-size: 11px; font-weight: 700; }
+  .task-text { flex: 1; font-size: 14px; font-weight: 500; }
+  .task-date-badge {
+    font-size: 11px;
+    color: var(--blue);
+    font-family: var(--mono);
+    background: var(--blue3);
+    padding: 2px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .task-del {
+    background: transparent;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 2px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .task-del:hover { color: var(--red); }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin: 18px 0 10px;
+  }
+
+  /* WATER */
+  .water-hero {
+    text-align: center;
+    padding: 10px 0 4px;
+  }
+  .water-amount {
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--blue);
+    line-height: 1;
+    font-family: var(--mono);
+  }
+  .water-unit {
+    font-size: 20px;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .water-goal {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+  .water-bar-wrap {
+    background: var(--bg3);
+    border-radius: 100px;
+    height: 12px;
+    margin: 20px 0 6px;
+    overflow: hidden;
+  }
+  .water-bar {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--blue);
+    transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .water-termos {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 16px 0;
+  }
+  .termo-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--blue2);
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .termo-dot.filled { background: var(--blue); border-color: var(--blue); }
+  .btn-agua {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--blue3);
+    border: 1px solid var(--blue2);
+    border-radius: var(--radius);
+    color: var(--blue);
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .btn-agua:hover { background: var(--blue2); }
+  .btn-agua:active { transform: scale(0.98); }
+  .btn-reset-agua {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text3);
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+  .btn-reset-agua:hover { color: var(--text2); border-color: var(--border2); }
+
+  /* GYM */
+  .day-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .day-tabs::-webkit-scrollbar { display: none; }
+  .day-tab {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .day-tab:hover { color: var(--text); border-color: var(--border2); }
+  .day-tab.active { background: var(--amber3); border-color: var(--amber2); color: var(--amber); }
+  .gym-exercise {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .gym-ex-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    cursor: pointer;
+    gap: 10px;
+  }
+  .gym-ex-name { flex: 1; font-size: 14px; font-weight: 600; }
+  .gym-ex-prev {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+  .gym-ex-arrow {
+    font-size: 12px;
+    color: var(--text3);
+    transition: transform 0.2s;
+  }
+  .gym-ex-arrow.open { transform: rotate(180deg); }
+  .gym-ex-body { display: none; padding: 0 14px 14px; }
+  .gym-ex-body.open { display: block; }
+  .sets-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .sets-table th {
+    text-align: left;
+    color: var(--text3);
+    font-size: 11px;
+    padding: 4px 6px;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+  .sets-table td { padding: 6px 6px; }
+  .sets-input {
+    background: var(--bg4);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    padding: 5px 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    width: 70px;
+    outline: none;
+  }
+  .sets-input:focus { border-color: var(--amber); }
+  .btn-add-set {
+    font-size: 12px;
+    color: var(--amber);
+    background: var(--amber3);
+    border: 1px solid var(--amber2);
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 600;
+    transition: opacity 0.15s;
+  }
+  .btn-add-set:hover { opacity: 0.8; }
+  .btn-save-ex {
+    font-size: 12px;
+    color: var(--green);
+    background: var(--green3);
+    border: 1px solid var(--green2);
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 600;
+    transition: opacity 0.15s;
+    margin-left: 6px;
+  }
+  .btn-save-ex:hover { opacity: 0.8; }
+  .suggestion-badge {
+    font-size: 11px;
+    color: var(--amber);
+    background: var(--amber3);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: var(--mono);
+    margin-left: 6px;
+  }
+  .btn-add-exercise {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px dashed var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text3);
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 600;
+  }
+  .btn-add-exercise:hover { color: var(--amber); border-color: var(--amber2); }
+
+  /* SUEÑO */
+  .device-placeholder {
+    text-align: center;
+    padding: 48px 20px;
+  }
+  .device-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+  .device-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+  .device-sub {
+    font-size: 13px;
+    color: var(--text3);
+    line-height: 1.6;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  /* CALENDAR */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .cal-month {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .cal-nav {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text2);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+  .cal-nav:hover { color: var(--text); border-color: var(--border2); }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+  .cal-day-name {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 0;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    gap: 2px;
+    padding: 4px 0;
+  }
+  .cal-day:hover { background: var(--bg3); }
+  .cal-day.today { background: var(--bg3); border: 1px solid var(--green); color: var(--green); }
+  .cal-day.other-month { opacity: 0.2; }
+  .cal-day.has-events::after {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--blue);
+    position: absolute;
+    bottom: 4px;
+  }
+  .cal-day.has-tasks::after {
+    background: var(--green);
+  }
+  .event-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .event-selected-date {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+    margin-bottom: 8px;
+  }
+  .event-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    background: var(--bg3);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .event-date-badge {
+    font-size: 11px;
+    color: var(--amber);
+    font-family: var(--mono);
+    background: var(--amber3);
+    padding: 2px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .event-text { flex: 1; }
+  .badge-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: 4px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 480px) {
+    .hero { flex-direction: column; text-align: center; gap: 16px; }
+    .hero-ring { width: 88px; height: 88px; }
+    .hero-pct { font-size: 20px; }
+    .water-amount { font-size: 44px; }
+    .page { padding: 16px 12px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <button class="nav-btn active" data-section="inicio">
+    <span class="nav-dot"></span>Inicio
+  </button>
+  <button class="nav-btn" data-section="agua">
+    <span class="nav-dot"></span>Agua
+  </button>
+  <button class="nav-btn" data-section="gym">
+    <span class="nav-dot"></span>Gym
+  </button>
+  <button class="nav-btn" data-section="sueno">
+    <span class="nav-dot"></span>Sueño
+  </button>
+  <button class="nav-btn" data-section="calendario">
+    <span class="nav-dot"></span>Calendario
+  </button>
+</nav>
+
+<!-- INICIO -->
+<div class="page active" id="page-inicio">
+  <div class="hero">
+    <div class="hero-ring">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+        <circle id="ring-circle" cx="50" cy="50" r="42" fill="none" stroke="#4ade80" stroke-width="8"
+          stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9"
+          style="transition: stroke-dashoffset 0.6s cubic-bezier(0.34,1.56,0.64,1)"/>
+      </svg>
+      <div class="hero-ring-text">
+        <span class="hero-pct" id="ring-pct">0%</span>
+        <span class="hero-time-label" id="ring-label">DÍA</span>
+      </div>
+    </div>
+    <div class="hero-info">
+      <div class="hero-title" id="hero-title">Buen día 👋</div>
+      <div class="hero-sub" id="hero-sub">Empezá el día con energía</div>
+      <div class="hero-date" id="hero-date"></div>
+      <div style="margin-top:10px">
+        <span class="streak-badge">⚡ <span id="streak-count">0</span> días seguidos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODAY TASKS -->
+  <div class="card">
+    <div class="card-label">Tareas de hoy <span class="badge-count" id="today-progress">0/0</span></div>
+    <div class="task-input-row">
+      <input class="task-input" id="today-task-input" placeholder="Nueva tarea para hoy..." />
+      <button class="btn-add" onclick="addTodayTask()">+</button>
+    </div>
+    <div id="today-tasks-list"></div>
+  </div>
+
+  <!-- FUTURE TASKS -->
+  <div class="card">
+    <div class="card-label">Tareas futuras</div>
+    <div class="task-input-row">
+      <input class="task-input" id="future-task-input" placeholder="Nueva tarea futura..." />
+      <input type="date" class="task-date-input" id="future-task-date" />
+      <button class="btn-add" onclick="addFutureTask()">+</button>
+    </div>
+    <div id="future-tasks-list"></div>
+  </div>
+</div>
+
+<!-- AGUA -->
+<div class="page" id="page-agua">
+  <div class="card">
+    <div class="card-label">Hidratación diaria</div>
+    <div class="water-hero">
+      <div>
+        <span class="water-amount" id="water-amount">0</span>
+        <span class="water-unit">ml</span>
+      </div>
+      <div class="water-goal">objetivo: <span style="color:var(--blue)">4500 ml</span></div>
+    </div>
+    <div class="water-bar-wrap">
+      <div class="water-bar" id="water-bar" style="width:0%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:16px">
+      <span>0</span><span>1500</span><span>3000</span><span>4500ml</span>
+    </div>
+    <div class="water-termos" id="water-termos"></div>
+    <button class="btn-agua" onclick="addWater()">+ Termo (500ml)</button>
+    <div style="text-align:center;margin-top:10px;font-size:13px;color:var(--text3);font-family:var(--mono)" id="water-remaining"></div>
+    <button class="btn-reset-agua" onclick="resetWater()">Reiniciar agua del día</button>
+  </div>
+</div>
+
+<!-- GYM -->
+<div class="page" id="page-gym">
+  <div class="card">
+    <div class="card-label">Entrenamiento</div>
+    <div class="day-tabs" id="gym-day-tabs">
+      <button class="day-tab active" data-day="lunes" onclick="selectGymDay('lunes', this)">Lunes</button>
+      <button class="day-tab" data-day="miercoles" onclick="selectGymDay('miercoles', this)">Miércoles</button>
+      <button class="day-tab" data-day="viernes" onclick="selectGymDay('viernes', this)">Viernes</button>
+    </div>
+    <div id="gym-exercises-list"></div>
+    <button class="btn-add-exercise" onclick="addExercise()">+ Agregar ejercicio</button>
+  </div>
+</div>
+
+<!-- SUEÑO -->
+<div class="page" id="page-sueno">
+  <div class="card">
+    <div class="device-placeholder">
+      <div class="device-icon">⌚</div>
+      <div class="device-title">Conectar dispositivo</div>
+      <div class="device-sub">
+        Cuando tengas tu Amazfit, conectala a Apple Health y te explico cómo vincular los datos acá. Tu dashboard ya está listo para recibirlos.
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-label">Registro manual (mientras tanto)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;font-family:var(--mono)">Horas dormidas</div>
+        <input class="task-input" id="sleep-hours" type="number" min="0" max="24" step="0.5" placeholder="7.5" style="width:100%"/>
+      </div>
+      <div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px;font-family:var(--mono)">Calidad (1-10)</div>
+        <input class="task-input" id="sleep-quality" type="number" min="1" max="10" placeholder="8" style="width:100%"/>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px;font-family:var(--mono)">Energía al despertar (1-10)</div>
+      <input class="task-input" id="sleep-energy" type="number" min="1" max="10" placeholder="7" style="width:100%"/>
+    </div>
+    <button class="btn-save-ex" style="width:100%;padding:12px;font-size:14px" onclick="saveSleep()">Guardar</button>
+    <div id="sleep-history" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<!-- CALENDARIO -->
+<div class="page" id="page-calendario">
+  <div class="card">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="calNav(-1)">‹</button>
+      <div class="cal-month" id="cal-month-title"></div>
+      <button class="cal-nav" onclick="calNav(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Nuevo evento</div>
+    <div class="event-input-row">
+      <input class="task-input" id="event-input" placeholder="Nombre del evento..." />
+      <input type="date" class="task-date-input" id="event-date" />
+      <button class="btn-add" onclick="addEvent()">+</button>
+    </div>
+    <div id="events-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DAY_NAMES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+// STATE
+let state = loadState();
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('dashboard_v1');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return {
+    todayTasks: [],
+    futureTasks: [],
+    water: { date: '', amount: 0 },
+    gym: { lunes: [], miercoles: [], viernes: [] },
+    gymHistory: {},
+    sleep: [],
+    events: [],
+    streak: 0,
+    lastCompleted: ''
+  };
+}
+
+function saveState() {
+  localStorage.setItem('dashboard_v1', JSON.stringify(state));
+}
+
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// NAV
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('page-' + btn.dataset.section).classList.add('active');
+  });
+});
+
+// HERO
+function updateHero() {
+  const now = new Date();
+  const h = now.getHours();
+  let title, sub, label;
+  if (h < 12) { title = 'Buen día 👋'; sub = 'Empezá el día con energía'; label = 'MAÑANA'; }
+  else if (h < 18) { title = 'Buenas tardes ☀️'; sub = 'A seguir con todo'; label = 'TARDE'; }
+  else { title = 'Buenas noches 🌙'; sub = 'Cerrá el día fuerte'; label = 'NOCHE'; }
+
+  document.getElementById('hero-title').textContent = title;
+  document.getElementById('hero-sub').textContent = sub;
+  document.getElementById('ring-label').textContent = label;
+
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('hero-date').textContent = now.toLocaleDateString('es-AR', options);
+
+  const total = state.todayTasks.length;
+  const done = state.todayTasks.filter(t => t.done).length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('ring-pct').textContent = pct + '%';
+  const circumference = 263.9;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('ring-circle').style.strokeDashoffset = offset;
+
+  document.getElementById('streak-count').textContent = state.streak || 0;
+}
+
+// TODAY TASKS
+function renderTodayTasks() {
+  const list = document.getElementById('today-tasks-list');
+  const today = todayStr();
+  // Check if we need to reset for new day
+  if (state.water.date !== today && state.water.date !== '') {
+    state.water.date = today;
+    state.water.amount = 0;
+  }
+
+  const today_tasks = state.todayTasks;
+  const done = today_tasks.filter(t => t.done).length;
+  document.getElementById('today-progress').textContent = done + '/' + today_tasks.length;
+
+  list.innerHTML = today_tasks.map((t, i) => `
+    <div class="task-item ${t.done ? 'done' : ''}">
+      <div class="task-check ${t.done ? 'done' : ''}" onclick="toggleTask(${i})"></div>
+      <span class="task-text">${t.text}</span>
+      <button class="task-del" onclick="deleteTask(${i})">×</button>
+    </div>
+  `).join('');
+  updateHero();
+}
+
+function addTodayTask() {
+  const inp = document.getElementById('today-task-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  state.todayTasks.push({ text, done: false, created: todayStr() });
+  inp.value = '';
+  saveState();
+  renderTodayTasks();
+  showToast('Tarea agregada ✓');
+}
+
+function toggleTask(i) {
+  state.todayTasks[i].done = !state.todayTasks[i].done;
+  saveState();
+  checkStreak();
+  renderTodayTasks();
+}
+
+function deleteTask(i) {
+  state.todayTasks.splice(i, 1);
+  saveState();
+  renderTodayTasks();
+}
+
+document.getElementById('today-task-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTodayTask();
+});
+
+// FUTURE TASKS
+function renderFutureTasks() {
+  const list = document.getElementById('future-tasks-list');
+  const sorted = [...state.futureTasks].sort((a, b) => a.date.localeCompare(b.date));
+  if (sorted.length === 0) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">No hay tareas futuras</div>';
+    return;
+  }
+  list.innerHTML = sorted.map((t, i) => `
+    <div class="task-item">
+      <span class="task-text">${t.text}</span>
+      <span class="task-date-badge">${formatDate(t.date)}</span>
+      <button class="task-del" onclick="deleteFutureTask(${state.futureTasks.indexOf(t)})">×</button>
+    </div>
+  `).join('');
+}
+
+function addFutureTask() {
+  const inp = document.getElementById('future-task-input');
+  const dateInp = document.getElementById('future-task-date');
+  const text = inp.value.trim();
+  const date = dateInp.value;
+  if (!text || !date) { showToast('Falta el texto o la fecha'); return; }
+  state.futureTasks.push({ text, date });
+  inp.value = '';
+  saveState();
+  renderFutureTasks();
+  showToast('Tarea futura agregada ✓');
+}
+
+function deleteFutureTask(i) {
+  state.futureTasks.splice(i, 1);
+  saveState();
+  renderFutureTasks();
+}
+
+document.getElementById('future-task-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addFutureTask();
+});
+
+// WATER
+function renderWater() {
+  const today = todayStr();
+  if (state.water.date !== today) {
+    state.water.date = today;
+    state.water.amount = 0;
+    saveState();
+  }
+  const amt = state.water.amount;
+  const goal = 4500;
+  const pct = Math.min((amt / goal) * 100, 100);
+  document.getElementById('water-amount').textContent = amt;
+  document.getElementById('water-bar').style.width = pct + '%';
+
+  const rem = Math.max(goal - amt, 0);
+  document.getElementById('water-remaining').textContent =
+    rem > 0 ? `Faltan ${rem}ml (${Math.ceil(rem/500)} termos)` : '🎉 ¡Objetivo cumplido!';
+
+  // termos dots
+  const termos = document.getElementById('water-termos');
+  const total = 9;
+  const filled = Math.floor(amt / 500);
+  termos.innerHTML = Array.from({length: total}, (_, i) =>
+    `<div class="termo-dot ${i < filled ? 'filled' : ''}"></div>`
+  ).join('');
+}
+
+function addWater() {
+  if (state.water.amount >= 4500) { showToast('🎉 ¡Objetivo ya cumplido!'); return; }
+  state.water.amount = Math.min(state.water.amount + 500, 4500);
+  saveState();
+  renderWater();
+  if (state.water.amount >= 4500) showToast('🎉 ¡Llegaste al objetivo de agua!');
+  else showToast('+500ml 💧');
+}
+
+function resetWater() {
+  state.water.amount = 0;
+  saveState();
+  renderWater();
+  showToast('Agua reiniciada');
+}
+
+// GYM
+let currentGymDay = 'lunes';
+
+function selectGymDay(day, el) {
+  document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentGymDay = day;
+  renderGymExercises();
+}
+
+function renderGymExercises() {
+  const list = document.getElementById('gym-exercises-list');
+  const exercises = state.gym[currentGymDay] || [];
+
+  if (exercises.length === 0) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0">Agregá ejercicios para este día</div>';
+    return;
+  }
+
+  list.innerHTML = exercises.map((ex, ei) => {
+    const histKey = currentGymDay + '_' + ei;
+    const prevWeek = state.gymHistory[histKey];
+    const prevText = prevWeek ? `semana pasada: ${prevWeek}` : '';
+    const suggestion = prevWeek ? getSuggestion(prevWeek) : '';
+
+    const setsHtml = (ex.sets || []).map((s, si) => `
+      <tr>
+        <td style="color:var(--text3)">${si + 1}</td>
+        <td><input class="sets-input" value="${s.reps || ''}" placeholder="12" oninput="updateSet(${ei},${si},'reps',this.value)" /></td>
+        <td><input class="sets-input" value="${s.weight || ''}" placeholder="60" oninput="updateSet(${ei},${si},'weight',this.value)" /></td>
+        <td><button onclick="deleteSet(${ei},${si})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px">×</button></td>
+      </tr>
+    `).join('');
+
+    return `
+      <div class="gym-exercise">
+        <div class="gym-ex-header" onclick="toggleExercise(${ei})">
+          <span class="gym-ex-name">${ex.name}</span>
+          ${prevText ? `<span class="gym-ex-prev">${prevText}</span>` : ''}
+          ${suggestion ? `<span class="suggestion-badge">↑ ${suggestion}</span>` : ''}
+          <span class="gym-ex-arrow" id="arrow-${ei}">▼</span>
+        </div>
+        <div class="gym-ex-body" id="exbody-${ei}">
+          <table class="sets-table">
+            <thead><tr><th>Serie</th><th>Reps</th><th>Peso (kg)</th><th></th></tr></thead>
+            <tbody>${setsHtml}</tbody>
+          </table>
+          <button class="btn-add-set" onclick="addSet(${ei})">+ Serie</button>
+          <button class="btn-save-ex" onclick="saveExercise(${ei})">Guardar ✓</button>
+          <button onclick="deleteExercise(${ei})" style="font-size:12px;color:var(--red);background:var(--red3);border:1px solid rgba(248,113,113,0.3);border-radius:6px;padding:5px 12px;cursor:pointer;font-family:var(--font);font-weight:600;margin-left:6px">Eliminar</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getSuggestion(prevStr) {
+  const m = prevStr.match(/(\d+)kg/);
+  if (!m) return '';
+  const prev = parseInt(m[1]);
+  return (prev + 2.5) + 'kg';
+}
+
+function toggleExercise(ei) {
+  const body = document.getElementById('exbody-' + ei);
+  const arrow = document.getElementById('arrow-' + ei);
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function addExercise() {
+  const name = prompt('Nombre del ejercicio:');
+  if (!name || !name.trim()) return;
+  if (!state.gym[currentGymDay]) state.gym[currentGymDay] = [];
+  state.gym[currentGymDay].push({ name: name.trim(), sets: [{ reps: '', weight: '' }] });
+  saveState();
+  renderGymExercises();
+}
+
+function deleteExercise(ei) {
+  state.gym[currentGymDay].splice(ei, 1);
+  saveState();
+  renderGymExercises();
+}
+
+function addSet(ei) {
+  state.gym[currentGymDay][ei].sets.push({ reps: '', weight: '' });
+  saveState();
+  renderGymExercises();
+  setTimeout(() => {
+    const body = document.getElementById('exbody-' + ei);
+    const arrow = document.getElementById('arrow-' + ei);
+    if (body) body.classList.add('open');
+    if (arrow) arrow.classList.add('open');
+  }, 10);
+}
+
+function deleteSet(ei, si) {
+  state.gym[currentGymDay][ei].sets.splice(si, 1);
+  saveState();
+  renderGymExercises();
+  setTimeout(() => {
+    const body = document.getElementById('exbody-' + ei);
+    const arrow = document.getElementById('arrow-' + ei);
+    if (body) body.classList.add('open');
+    if (arrow) arrow.classList.add('open');
+  }, 10);
+}
+
+function updateSet(ei, si, field, val) {
+  state.gym[currentGymDay][ei].sets[si][field] = val;
+  saveState();
+}
+
+function saveExercise(ei) {
+  const ex = state.gym[currentGymDay][ei];
+  const lastSet = ex.sets.filter(s => s.weight).pop();
+  if (lastSet && lastSet.weight) {
+    const histKey = currentGymDay + '_' + ei;
+    state.gymHistory[histKey] = lastSet.reps + 'x' + lastSet.weight + 'kg';
+    saveState();
+  }
+  showToast('Ejercicio guardado ✓');
+  renderGymExercises();
+}
+
+// SLEEP
+function saveSleep() {
+  const h = document.getElementById('sleep-hours').value;
+  const q = document.getElementById('sleep-quality').value;
+  const e = document.getElementById('sleep-energy').value;
+  if (!h && !q && !e) { showToast('Completá algún dato'); return; }
+  state.sleep.unshift({ date: todayStr(), hours: h, quality: q, energy: e });
+  if (state.sleep.length > 30) state.sleep = state.sleep.slice(0, 30);
+  saveState();
+  renderSleepHistory();
+  showToast('Sueño guardado ✓');
+}
+
+function renderSleepHistory() {
+  const el = document.getElementById('sleep-history');
+  if (!state.sleep.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div class="section-title">Últimos registros</div>' +
+    state.sleep.slice(0, 7).map(s => `
+      <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text3);width:80px">${formatDate(s.date)}</span>
+        ${s.hours ? `<span style="font-size:12px;color:var(--blue)">💤 ${s.hours}h</span>` : ''}
+        ${s.quality ? `<span style="font-size:12px;color:var(--amber)">★ ${s.quality}/10</span>` : ''}
+        ${s.energy ? `<span style="font-size:12px;color:var(--green)">⚡ ${s.energy}/10</span>` : ''}
+      </div>
+    `).join('');
+}
+
+// CALENDAR
+let calDate = new Date();
+
+function renderCalendar() {
+  const year = calDate.getFullYear();
+  const month = calDate.getMonth();
+  document.getElementById('cal-month-title').textContent = MONTH_NAMES[month] + ' ' + year;
+
+  const grid = document.getElementById('cal-grid');
+  const today = new Date();
+
+  let html = DAY_NAMES.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevDays = new Date(year, month, 0).getDate();
+
+  for (let i = firstDay - 1; i >= 0; i--) {
+    html += `<div class="cal-day other-month">${prevDays - i}</div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+    const hasEvent = state.events.some(e => e.date === dateStr);
+    const hasTask = state.futureTasks.some(t => t.date === dateStr);
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    if (hasEvent) cls += ' has-events';
+    else if (hasTask) cls += ' has-tasks';
+    html += `<div class="${cls}" onclick="selectCalDay('${dateStr}')">${d}</div>`;
+  }
+
+  const remaining = 42 - (firstDay + daysInMonth - 1);
+  for (let d = 1; d <= remaining && remaining < 7; d++) {
+    html += `<div class="cal-day other-month">${d}</div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+function selectCalDay(dateStr) {
+  document.getElementById('event-date').value = dateStr;
+  document.getElementById('event-input').focus();
+}
+
+function calNav(dir) {
+  calDate.setMonth(calDate.getMonth() + dir);
+  renderCalendar();
+}
+
+function renderEvents() {
+  const list = document.getElementById('events-list');
+  const sorted = [...state.events].sort((a, b) => a.date.localeCompare(b.date));
+  if (!sorted.length) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">Sin eventos</div>';
+    return;
+  }
+  list.innerHTML = sorted.map((ev, i) => `
+    <div class="event-item">
+      <span class="event-date-badge">${formatDate(ev.date)}</span>
+      <span class="event-text">${ev.text}</span>
+      <button class="task-del" onclick="deleteEvent(${state.events.indexOf(ev)})">×</button>
+    </div>
+  `).join('');
+}
+
+function addEvent() {
+  const inp = document.getElementById('event-input');
+  const dateInp = document.getElementById('event-date');
+  const text = inp.value.trim();
+  const date = dateInp.value;
+  if (!text || !date) { showToast('Falta el nombre o la fecha'); return; }
+  state.events.push({ text, date });
+  inp.value = '';
+  saveState();
+  renderEvents();
+  renderCalendar();
+  showToast('Evento agregado ✓');
+}
+
+function deleteEvent(i) {
+  state.events.splice(i, 1);
+  saveState();
+  renderEvents();
+  renderCalendar();
+}
+
+document.getElementById('event-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addEvent();
+});
+
+// STREAK
+function checkStreak() {
+  const today = todayStr();
+  const total = state.todayTasks.length;
+  const done = state.todayTasks.filter(t => t.done).length;
+  if (total > 0 && done === total && state.lastCompleted !== today) {
+    state.lastCompleted = today;
+    state.streak = (state.streak || 0) + 1;
+    saveState();
+    showToast('🔥 ¡Racha actualizada! ' + state.streak + ' días');
+  }
+}
+
+// UTILS
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  const [y, m, d] = str.split('-');
+  return d + '/' + m + '/' + y;
+}
+
+// INIT
+updateHero();
+renderTodayTasks();
+renderFutureTasks();
+renderWater();
+renderGymExercises();
+renderSleepHistory();
+renderCalendar();
+renderEvents();
+
+// Set default date for inputs
+const todayVal = todayStr();
+document.getElementById('future-task-date').value = todayVal;
+document.getElementById('event-date').value = todayVal;
+
+setInterval(updateHero, 60000);
+</script>
+</body>
+</html>
